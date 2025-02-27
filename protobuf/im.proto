@@ -1,0 +1,152 @@
+//指定版本
+//注意proto3与proto2的写法有些不同
+syntax = "proto3";
+
+//包名，通过protoc生成时go文件时
+package proto_service;
+
+option go_package = "./proto_service";   // 编译为.go文件最好指定的参数
+
+service IMRpc{
+    //-------------------------------操作-------------------------------
+    //用户注册
+    rpc UserAdd(User) returns (HandleResponse){}
+
+    //用户修改
+    rpc UserEdit(User) returns (HandleResponse){}
+
+    //用户修改
+    rpc UserDel(User) returns (HandleResponse){}
+
+    //创建组
+    rpc GroupAdd(Group) returns (HandleResponse){}
+
+    //修改组
+    rpc GroupEdit(Group) returns (HandleResponse){}
+
+    //删除组
+    rpc GroupDel(Group) returns (HandleResponse){}
+
+
+    //修改组员
+    rpc UserGroupEdit(UserGroup) returns (HandleResponse){}
+
+
+    //-------------------------------查询-------------------------------
+
+    //查询用户列表
+    rpc QueryUserList(QueryCommonReq)  returns (IMUsers){}
+
+    //查询聊天群列表
+    rpc QueryGroupList(QueryCommonReq)  returns (IMGroups){}
+
+    //查询聊天记录
+    rpc QueryMessageList(QueryMessageReq)  returns (IMMessages){}
+
+
+}
+
+
+
+
+
+//枚举类型第一个字段必须为0
+//enum GroupOptionalType {
+//    DEL = 0;
+//    ADD = 1;
+//
+//}
+
+message IMMessages{
+    repeated IMMessage message = 1;
+}
+message IMMessage{
+    int64 id = 1;
+    int64 uid = 2;
+    int64 group_id = 3;
+    int64 to_uid = 4;
+    int64 message_type = 5;
+    int64 time = 6;
+    string message = 7;
+}
+
+message IMGroups{
+    repeated IMGroup group = 1;
+}
+message IMGroup{
+    int64 id = 1;
+    string name = 2;
+    string avatar = 3;
+    string des = 4;
+}
+
+
+message IMUsers{
+    repeated IMUser user = 1;
+}
+message IMUser{
+    int64 id = 1;
+    int64 project_id = 2;
+    int64 project_uid = 3;
+    string name = 4;
+    int64 IsOnline = 5;
+    string avatar = 6;
+    string pwd = 7;
+    int64 last_online_time = 8;
+}
+
+
+//注册用户 修改用户信息
+message User{
+    int64 project_id = 1;
+    int64 project_uid = 2;
+    string name = 3;
+    string avatar = 4;
+}
+
+//新增  修改 用户组
+message Group{
+    int64 project_id = 1;
+    int64 project_uid = 2;
+    int64 group_id = 3;//有就修改，没有就新建
+    string name = 4;
+    string des = 5;
+    string avatar = 6;
+}
+
+//用户组(加入，删除用户) 没有group_id,就是创建用户组，并加入这些人
+message UserGroup{
+    int64 project_id = 1;
+    int64 project_uid = 2;
+    repeated User project_users = 3;
+    int64 group_id = 4;
+}
+
+message HandleResponse{
+    bool ok = 1;
+    string msg = 2;
+}
+
+
+message QueryCommonReq{
+    int64 project_id = 1;
+    int64 project_uid = 2; //这个可以不填，留着之后加权限，留日志吧
+    int64 group_id = 3;
+}
+
+message QueryMessageReq{
+    QueryCommonReq query_common_res = 1;
+
+    int64 to_project_id = 4;
+    int64 to_project_uid = 5;
+
+    int64 start_time = 6;
+    int64 end_time = 7;
+}
+
+
+
+
+
+
+
